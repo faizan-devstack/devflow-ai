@@ -3,8 +3,10 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { ThemeToggle } from "@/components/layout/theme/theme-toggle";
 import { ThemeProvider } from "next-themes";
+import Header from "@/components/layout/header/header";
+import Footer from "@/components/layout/footer/footer";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -38,10 +40,12 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
           enableSystem
-        >
+          >
           <ThemeToggle />
           <TooltipProvider>
+          {/* <Header /> */}
             {children}
+            <Footer />
           </TooltipProvider>
         </ThemeProvider>
       </body>
