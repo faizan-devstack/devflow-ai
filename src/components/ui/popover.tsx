@@ -72,7 +72,7 @@ function PopoverDescription({
   return (
     <p
       data-slot="popover-description"
-      className={cn("text-xs/relaxed text-muted-foreground", className)}
+      className={cn("text-xs/relaxed text-canvas-text", className)}
       {...props}
     />
   )
