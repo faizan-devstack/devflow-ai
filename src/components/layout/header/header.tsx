@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUser, useClerk } from "@clerk/nextjs";
+// import { useUser, useClerk } from "@clerk/nextjs";
 import { PiList, PiBell } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
@@ -77,11 +77,10 @@ function NavItem({
       href={href}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`relative text-sm transition-colors duration-150 px-1 py-0.5 ${
-        isActive
-          ? "text-primary-solid"
-          : "text-canvas-text hover:text-canvas-text-contrast"
-      }`}
+      className={`relative text-sm transition-colors duration-150 px-1 py-0.5 ${isActive
+        ? "text-primary-solid"
+        : "text-canvas-text hover:text-canvas-text-contrast"
+        }`}
     >
       {label}
 
@@ -273,11 +272,10 @@ function MobileMenu({
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className={`text-sm px-3 py-2.5 rounded-md transition-colors ${
-                    isActive
-                      ? "text-primary-solid bg-primary-bg/30"
-                      : "text-canvas-text hover:text-canvas-text-contrast hover:bg-canvas-subtle"
-                  }`}
+                  className={`text-sm px-3 py-2.5 rounded-md transition-colors ${isActive
+                    ? "text-primary-solid bg-primary-bg/30"
+                    : "text-canvas-text hover:text-canvas-text-contrast hover:bg-canvas-subtle"
+                    }`}
                 >
                   {link.label}
                 </Link>
@@ -327,17 +325,19 @@ function MobileMenu({
 
 export default function Header() {
   const pathname = usePathname();
-  const { isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
+  // const { isSignedIn, user } = useUser();
+  // const { signOut } = useClerk();
+  const isSignedIn = false;
+  const user = null;
 
   // Derive initials from Clerk user
-  const initials = user
-    ? (
-        (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")
-      ).toUpperCase() || user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"
-    : "U";
+  // const initials = user
+  //   ? (
+  //     (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")
+  //   ).toUpperCase() || user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"
+  //   : "U";
 
-  const handleSignOut = () => signOut({ redirectUrl: "/" });
+  // const handleSignOut = () => signOut({ redirectUrl: "/" });
 
   const logoHref = isSignedIn ? "/dashboard" : "/";
 
@@ -349,10 +349,8 @@ export default function Header() {
       className="sticky top-0 z-50 h-16 bg-canvas-base/80 backdrop-blur-md border-b border-canvas-border/50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-6">
-        {/* Logo */}
-        <Logo href={logoHref} />
+        {/* <Logo href={logoHref} />
 
-        {/* Desktop nav + right actions */}
         {isSignedIn ? (
           <LoggedInDesktopNav
             pathname={pathname}
@@ -363,12 +361,11 @@ export default function Header() {
           <LoggedOutDesktopNav />
         )}
 
-        {/* Mobile hamburger */}
         <MobileMenu
           isLoggedIn={!!isSignedIn}
           pathname={pathname}
           onSignOut={handleSignOut}
-        />
+        /> */}
       </div>
     </motion.header>
   );
