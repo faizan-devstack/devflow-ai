@@ -1,6 +1,12 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { SettingsClient } from "./settings-client";
+import { constructMetadata } from "@/lib/metadata";
+
+export const metadata = constructMetadata({
+  title: "Settings",
+  noIndex: true,
+});
 
 export default async function SettingsPage() {
   const user = await currentUser();

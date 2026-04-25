@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { PiArrowLeft, PiFileText, PiGithubLogo } from "react-icons/pi";
 
-export const metadata = {
-  title: "Terms of Service | DevFlow AI",
-  description: "Terms of Service for DevFlow AI",
-};
+import { constructMetadata } from "@/lib/metadata";
+
+export const metadata = constructMetadata({
+  title: "Terms of Service",
+  description: "Terms of service for DevFlow AI — open source developer productivity platform.",
+  image: `/api/og?title=Terms of Service&description=Legal&type=page`,
+  noIndex: true,
+});
 
 export default function TermsPage() {
   return (

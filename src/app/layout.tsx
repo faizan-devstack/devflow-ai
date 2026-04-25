@@ -19,10 +19,9 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "Devflow AI",
-  description: "AI-powered IDE for next-gen developers",
-};
+import { constructMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = constructMetadata();
 
 export default function RootLayout({
   children,
