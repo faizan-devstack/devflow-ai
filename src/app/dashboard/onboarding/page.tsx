@@ -1,3 +1,10 @@
+import { constructMetadata } from "@/lib/metadata";
+
+export const metadata = constructMetadata({
+  title: "Onboarding",
+  noIndex: true,
+});
+
 export default function OnboardingPage() {
   return (
     <div className="p-8">

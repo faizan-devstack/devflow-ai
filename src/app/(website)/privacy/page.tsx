@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { PiArrowLeft, PiShieldCheck, PiGithubLogo } from "react-icons/pi";
 
-export const metadata = {
-  title: "Privacy Policy | DevFlow AI",
-  description: "Privacy Policy for DevFlow AI",
-};
+import { constructMetadata } from "@/lib/metadata";
+
+export const metadata = constructMetadata({
+  title: "Privacy Policy",
+  description: "Privacy policy for DevFlow AI. Your data stays in your own database.",
+  image: `/api/og?title=Privacy Policy&description=Legal&type=page`,
+  noIndex: true,
+});
 
 export default function PrivacyPage() {
   return (
