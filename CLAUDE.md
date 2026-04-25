@@ -10,6 +10,55 @@ Target users: small dev agencies (2–10 devs), freelancers managing clients, ju
 
 ---
 
+### UI Component Implementation Guidelines (Generic)
+
+When creating or modifying **any UI component** in the project, strictly follow these rules:
+
+#### 1. Styling & Theming (Critical)
+- Always use ShadCN UI components as the base (`Card`, `Button`, `Dialog`, `Input`, `Label`, etc.)
+- **Never** use default Tailwind color classes (e.g. `bg-primary`, `text-muted-foreground`, `border-input`)
+- Replace them with DesignRift theme classes:
+  - Card backgrounds: `bg-canvas-bg-subtle`
+  - Card borders: `border-canvas-border/50`
+  - Card rounding: `rounded-xl`
+  - Primary text: `text-canvas-text-contrast`
+  - Secondary/muted text: `text-canvas-text`
+  - Primary buttons: `bg-primary-solid text-primary-on-primary hover:bg-primary-solid-hover`
+  - Destructive buttons: `bg-alert-solid text-alert-on-alert hover:bg-alert-solid-hover`
+  - Outline buttons: `border-canvas-border/50 text-canvas-text-contrast hover:bg-canvas-bg`
+  - Dialog content: `bg-canvas-base border-canvas-border/50`
+  - Muted text in forms: `text-canvas-text`
+
+#### 2. Icons
+- Always use Phosphor Icons from `react-icons/pi`
+- Import example: `import { PiUser, PiLockKey, PiWarningCircle } from 'react-icons/pi'`
+- Never use lucide-react, heroicons, or any other icon library
+
+#### 3. Animations (Required for all interactive elements)
+- Wrap main containers with Framer Motion
+- Use `motion.div` with these variants:
+  - Container: `containerVariants` with `staggerChildren: 0.08`
+  - Individual items/cards: `itemVariants` + `whileHover={{ y: -1 }}`
+- Cards should have subtle hover lift effect
+- Modals/dialogs should have smooth scale + fade animations
+
+#### 4. General Layout Rules
+- Main container spacing: `space-y-6`
+- Card content padding and alignment should feel spacious and clean
+- All pages and sections must be fully responsive (mobile-first)
+- Maintain consistent visual hierarchy
+
+#### 5. Component-Specific Patterns
+- Personal/Profile sections → Use `PiUser`
+- Security/Password sections → Use `PiLockKey`
+- Danger/Delete actions → Use `PiWarningCircle` + `alert-*` colors
+- Edit actions → Use `PiPencilSimple`
+- Sign out actions → Use `PiSignOut`
+
+Follow these guidelines consistently across the entire project to maintain a cohesive, professional DesignRift aesthetic.
+
+---
+
 ## Tech Stack (STRICT — do not deviate without asking)
 - **Framework**: Next.js latest stable (16.x), App Router, TypeScript strict mode
 - **Styling**: Tailwind CSS v4 + DesignRift custom theme (see Color System below)

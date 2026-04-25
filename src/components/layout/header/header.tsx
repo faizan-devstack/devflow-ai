@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-// import { useUser, useClerk } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/nextjs";
 import { PiList, PiBell } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
@@ -31,22 +31,23 @@ interface NavLink {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const LANDING_LINKS: NavLink[] = [
-  { label: "Features", href: "#features" },
-  { label: "How it Works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Features", href: "/#features" },
+  { label: "How it Works", href: "/#how-it-works" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "About Us", href: "/about" },
 ];
 
 const APP_LINKS: NavLink[] = [
   { label: "Standup", href: "/dashboard/standup" },
   { label: "Onboarding", href: "/dashboard/onboarding" },
-  { label: "Settings", href: "/dashboard/settings" },
+  { label: "Settings", href: "/settings" },
 ];
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
 function Logo({ href }: { href: string }) {
   return (
-    <Link href={href} className="flex items-center gap-0.5 shrink-0">
+    <Link href={'/'} className="flex items-center gap-0.5 shrink-0">
       <span className="text-canvas-text-contrast font-semibold text-lg tracking-tight">
         DevFlow
       </span>
@@ -84,12 +85,11 @@ function NavItem({
     >
       {label}
 
-      {/* Hover underline */}
       <AnimatePresence>
         {hovered && !isActive && (
           <motion.span
             layoutId="hover-indicator"
-            className="absolute bottom-0 left-0 right-0 h-px bg-canvas-text-contrast/40"
+            className="absolute bottom-0 left-0 right-0 h-px bg-primary-solid"
             initial={{ opacity: 0, scaleX: 0.5 }}
             animate={{ opacity: 1, scaleX: 1 }}
             exit={{ opacity: 0, scaleX: 0.5 }}
@@ -98,7 +98,6 @@ function NavItem({
         )}
       </AnimatePresence>
 
-      {/* Active underline (app nav only) */}
       {isAppNav && isActive && (
         <motion.span
           layoutId="active-indicator"
@@ -127,23 +126,17 @@ function UserAvatar({ initials }: { initials: string }) {
 function LoggedOutDesktopNav() {
   return (
     <>
-      {/* Center nav */}
       <nav className="hidden md:flex items-center gap-6">
         {LANDING_LINKS.map((link) => (
           <NavItem key={link.href} href={link.href} label={link.label} />
         ))}
       </nav>
 
-      {/* Right CTA */}
       <div className="hidden md:flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/sign-in">Sign in</Link>
         </Button>
-        <Button
-          size="sm"
-          className="bg-primary-solid text-primary-on-primary hover:bg-primary-solid/90"
-          asChild
-        >
+        <Button size="sm" asChild>
           <Link href="/sign-up">Get Started</Link>
         </Button>
       </div>
@@ -214,7 +207,7 @@ function LoggedInDesktopNav({
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/dashboard/settings"
+                  href="/settings"
                   className="text-sm text-canvas-text hover:text-canvas-text-contrast cursor-pointer"
                 >
                   Settings
@@ -305,7 +298,6 @@ function MobileMenu({
                 </Button>
                 <Button
                   size="sm"
-                  className="bg-primary-solid text-primary-on-primary hover:bg-primary-solid/90"
                   asChild
                 >
                   <Link href="/sign-up" onClick={() => setOpen(false)}>
@@ -325,21 +317,19 @@ function MobileMenu({
 
 export default function Header() {
   const pathname = usePathname();
-  // const { isSignedIn, user } = useUser();
-  // const { signOut } = useClerk();
-  const isSignedIn = false;
-  const user = null;
+  const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
 
   // Derive initials from Clerk user
-  // const initials = user
-  //   ? (
-  //     (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")
-  //   ).toUpperCase() || user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"
-  //   : "U";
+  const initials = user
+    ? (
+      (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")
+    ).toUpperCase() || user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"
+    : "U";
 
-  // const handleSignOut = () => signOut({ redirectUrl: "/" });
+  const handleSignOut = () => signOut({ redirectUrl: "/" });
 
-  const logoHref = isSignedIn ? "/dashboard" : "/";
+  const logoHref = isSignedIn ? "/settings" : "/";
 
   return (
     <motion.header
@@ -349,8 +339,10 @@ export default function Header() {
       className="sticky top-0 z-50 h-16 bg-canvas-base/80 backdrop-blur-md border-b border-canvas-border/50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-6">
-        {/* <Logo href={logoHref} />
+        {/* Logo */}
+        <Logo href={logoHref} />
 
+        {/* Desktop nav + right actions */}
         {isSignedIn ? (
           <LoggedInDesktopNav
             pathname={pathname}
@@ -361,11 +353,12 @@ export default function Header() {
           <LoggedOutDesktopNav />
         )}
 
+        {/* Mobile hamburger */}
         <MobileMenu
           isLoggedIn={!!isSignedIn}
           pathname={pathname}
           onSignOut={handleSignOut}
-        /> */}
+        />
       </div>
     </motion.header>
   );
