@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
+import { DM_Sans, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +7,9 @@ import { ThemeToggle } from "@/components/layout/theme/theme-toggle";
 import { ThemeProvider } from "next-themes";
 import Header from "@/components/layout/header/header";
 import Footer from "@/components/layout/footer/footer";
+import { ClerkProvider } from "@clerk/nextjs";
+
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -27,28 +30,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en" suppressHydrationWarning
-      className={cn(
-        "h-full antialiased",
-        dmSans.variable,
-        "font-sans"
-      )}
-    >
-      <body className="min-h-full flex flex-col bg-canvas-base">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-        >
-          <ThemeToggle />
-          <TooltipProvider>
-            <Header />
-            {children}
-            <Footer />
-          </TooltipProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html
+        lang="en" suppressHydrationWarning
+        className={cn(
+          "h-full antialiased",
+          dmSans.variable
+          , "font-sans", geist.variable)}
+      >
+        <body className="min-h-full flex flex-col bg-canvas-base" suppressHydrationWarning>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+          >
+            <ThemeToggle />
+            <TooltipProvider>
+              <Header />
+              {children}
+              <Footer />
+            </TooltipProvider>
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

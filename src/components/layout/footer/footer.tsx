@@ -13,21 +13,20 @@ import {
 const PRODUCT_LINKS = [
   { label: "Features", href: "/#features" },
   { label: "How it Works", href: "/#how-it-works" },
-  { label: "Pricing", href: "/#pricing" },
-  { label: "Changelog", href: "/changelog" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "CTA", href: "/#cta" },
 ];
 
 const COMPANY_LINKS = [
   { label: "About", href: "/about" },
-  { label: "Blog", href: "/blog" },
-  { label: "Privacy Policy", href: "/privacy" },
-  { label: "Terms of Service", href: "/terms" },
+  { label: "Terms", href: "/terms" },
+  { label: "Privacy", href: "/privacy" },
 ];
 
 const SOCIAL_LINKS = [
-  { label: "GitHub", href: "https://github.com", icon: PiGithubLogo },
-  { label: "Twitter", href: "https://twitter.com", icon: PiTwitterLogo },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: PiLinkedinLogo },
+  { label: "GitHub", href: "https://github.com/faizan-devstack", icon: PiGithubLogo },
+  { label: "Twitter", href: "https://twitter.com/Faizan_devstack", icon: PiTwitterLogo },
+  { label: "LinkedIn", href: "https://linkedin.com/in/ifaizan114", icon: PiLinkedinLogo },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -47,7 +46,7 @@ function FooterLinkGroup({
           <li key={href}>
             <Link
               href={href}
-              className="text-canvas-text hover:text-primary-text text-sm transition-colors duration-150"
+              className="text-canvas-text hover:text-canvas-text-contrast text-sm transition-colors"
             >
               {label}
             </Link>
@@ -71,12 +70,10 @@ export default function Footer() {
     >
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6">
 
-        {/* Main grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 md:gap-8">
 
-          {/* Col 1 — Brand */}
           <div className="flex flex-col gap-4">
-            {/* Logo */}
+
             <Link href="/" className="flex items-center gap-0.5 w-fit">
               <span className="text-canvas-text-contrast font-semibold text-lg tracking-tight">
                 DevFlow
@@ -86,36 +83,31 @@ export default function Footer() {
               </span>
             </Link>
 
-            {/* Tagline */}
             <p className="text-canvas-text text-sm max-w-[200px] leading-relaxed">
               Async standups and codebase onboarding for dev teams.
             </p>
 
-            {/* Social icons */}
             <div className="flex items-center gap-3 mt-1">
               {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
-                <a
+                <Link
                   key={label}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="text-canvas-text hover:text-canvas-text-contrast transition-colors duration-150"
+                  className="text-canvas-text hover:text-primary-text transition-colors"
                 >
-                  <Icon size={18} />
-                </a>
+                  <Icon size={22} />
+                </Link>
               ))}
             </div>
           </div>
 
-          {/* Col 2 — Product */}
           <FooterLinkGroup heading="Product" links={PRODUCT_LINKS} />
 
-          {/* Col 3 — Company */}
           <FooterLinkGroup heading="Company" links={COMPANY_LINKS} />
         </div>
 
-        {/* Bottom bar */}
         <div className="mt-10 pt-6 border-t border-canvas-border/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <p className="text-canvas-text text-xs">
             © 2026 DevFlow AI. All rights reserved.
@@ -124,7 +116,6 @@ export default function Footer() {
             Built for dev teams who ship.
           </p>
         </div>
-
       </div>
     </motion.footer>
   );
