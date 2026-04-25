@@ -9,7 +9,7 @@ import Header from "@/components/layout/header/header";
 import Footer from "@/components/layout/footer/footer";
 import { ClerkProvider } from "@clerk/nextjs";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -34,9 +34,9 @@ export default function RootLayout({
       <html
         lang="en" suppressHydrationWarning
         className={cn(
-                    "h-full antialiased",
-                    dmSans.variable
-                  , "font-sans", geist.variable)}
+          "h-full antialiased",
+          dmSans.variable
+          , "font-sans", geist.variable)}
       >
         <body className="min-h-full flex flex-col bg-canvas-base" suppressHydrationWarning>
           <ThemeProvider

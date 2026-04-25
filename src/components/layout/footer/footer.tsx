@@ -19,15 +19,14 @@ const PRODUCT_LINKS = [
 
 const COMPANY_LINKS = [
   { label: "About", href: "/about" },
-  { label: "Blog", href: "/blog" },
-  { label: "Privacy Policy", href: "/privacy" },
-  { label: "Terms of Service", href: "/terms" },
+  { label: "Terms", href: "/terms" },
+  { label: "Privacy", href: "/privacy" },
 ];
 
 const SOCIAL_LINKS = [
-  { label: "GitHub", href: "https://github.com", icon: PiGithubLogo },
-  { label: "Twitter", href: "https://twitter.com", icon: PiTwitterLogo },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: PiLinkedinLogo },
+  { label: "GitHub", href: "https://github.com/faizan-devstack", icon: PiGithubLogo },
+  { label: "Twitter", href: "https://twitter.com/Faizan_devstack", icon: PiTwitterLogo },
+  { label: "LinkedIn", href: "https://linkedin.com/in/ifaizan114", icon: PiLinkedinLogo },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -47,7 +46,7 @@ function FooterLinkGroup({
           <li key={href}>
             <Link
               href={href}
-              className="text-canvas-text hover:text-primary-text text-sm transition-colors"
+              className="text-canvas-text hover:text-canvas-text-contrast text-sm transition-colors"
             >
               {label}
             </Link>

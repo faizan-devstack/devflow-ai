@@ -13,7 +13,7 @@ export default function SignUpPage() {
       transition={{ duration: 0.35 }}
       className="flex flex-col items-center justify-center w-full"
     >
-      <SignUp appearance={clerkAppearance} />
+      <SignUp appearance={clerkAppearance} fallbackRedirectUrl="/dashboard/settings" />
 
       <div className="mt-6">
         <Link

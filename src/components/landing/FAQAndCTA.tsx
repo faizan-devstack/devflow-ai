@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Accordion as AccordionPrimitive } from "radix-ui";
-import { PiCaretDown, PiRocketLaunch } from "react-icons/pi";
+import { PiCaretDown, PiRocketLaunch, PiGithubLogo } from "react-icons/pi";
 import Link from "next/link";
 import WaveDivider from "@/components/animations/WaveDivider";
 import { Button } from "@/components/ui/button";
@@ -11,33 +11,33 @@ import { Button } from "@/components/ui/button";
 const FAQ_ITEMS = [
   {
     id: "faq-1",
-    q: "Is DevFlow AI free?",
-    a: "Yes — free for teams up to 3 members with core features. Paid plans unlock unlimited members, more repos, and priority AI.",
+    q: "Is DevFlow AI free to use?",
+    a: "Yes, completely. DevFlow AI is open source and free forever. You only need your own API keys (Anthropic/OpenAI) to power the AI features.",
   },
   {
     id: "faq-2",
-    q: "What AI powers DevFlow?",
-    a: "Claude by Anthropic — one of the best models for understanding and writing about code.",
+    q: "Do I need to provide my own API keys?",
+    a: "Yes. DevFlow AI uses the Claude API for AI features and OpenAI for embeddings. You add your own keys in settings. This keeps your data private and gives you full control over usage and costs.",
   },
   {
     id: "faq-3",
-    q: "Do you need GitHub access?",
-    a: "No account connection needed. Public repos work with just the URL. Private repos use a personal access token that is never stored on our servers.",
+    q: "Can I self-host DevFlow AI?",
+    a: "Absolutely. Clone the repo, add your environment variables, and deploy anywhere that runs Next.js, Vercel, Railway, or your own server.",
   },
   {
     id: "faq-4",
-    q: "How are digests delivered?",
-    a: "Every Friday, DevFlow compiles the week's standups into a client-ready digest and emails it automatically to whoever you configure.",
+    q: "Is my code safe when using the Codebase Onboarding feature?",
+    a: "Your repo is only analyzed when you explicitly connect it. Code chunks are stored in your own database. Nothing is shared externally beyond the AI API calls you make.",
   },
   {
     id: "faq-5",
-    q: "How accurate is the codebase Q&A?",
-    a: "Answers are grounded in your actual code with file path citations. Not general knowledge — your codebase.",
+    q: "How do I contribute?",
+    a: "Open a PR on GitHub. All contributions are welcome, bug fixes, features, docs, and design improvements.",
   },
   {
     id: "faq-6",
-    q: "Can I delete my data?",
-    a: "Yes. Delete any repo from settings and all chunks, embeddings, and sessions are permanently removed.",
+    q: "What AI models does DevFlow AI use?",
+    a: "Claude Sonnet (claude-sonnet-4.5) for all text generation and summaries, and OpenAI text-embedding-3-small for semantic codebase search.",
   },
 ];
 
@@ -125,21 +125,19 @@ function CtaSection() {
           <PiRocketLaunch />
         </div>
 
-        <h2 className="text-canvas-text-contrast text-4xl font-semibold mt-4">Ready to ship faster?</h2>
-        <p className="text-primary-text text-lg mt-3">Join dev teams already saving hours every week.</p>
+        <h2 className="text-canvas-text-contrast text-4xl font-semibold mt-4">Built for developers, by developers.</h2>
+        <p className="text-primary-text text-lg mt-3">Open source, self hostable, and free forever. Bring your own API keys and own your data completely.</p>
 
         <div className="mt-8 flex gap-4 justify-center flex-wrap">
-          <Button asChild variant="default">
+          <Button asChild className="bg-primary-solid text-primary-on-primary">
             <Link href="/sign-up">Get Started Free</Link>
           </Button>
-          <Button asChild variant="outline">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-              View GitHub
+          <Button asChild variant="ghost">
+            <a href="https://github.com/faizan-devstack/devflow-ai" target="_blank" rel="noopener noreferrer">
+              <PiGithubLogo className="mr-2" /> View on GitHub
             </a>
           </Button>
         </div>
-
-        <p className="mt-5 text-canvas-text text-xs">No credit card · Free for teams up to 3</p>
       </motion.div>
     </section>
   );

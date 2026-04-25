@@ -13,7 +13,7 @@ export default function SignInPage() {
       className="flex items-center justify-center w-full"
     >
 
-      <SignIn appearance={clerkAppearance} />
+      <SignIn appearance={clerkAppearance} fallbackRedirectUrl="/dashboard/settings" />
     </motion.div>
   );
 }

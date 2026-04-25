@@ -20,7 +20,7 @@ const STANDUP_STEPS = [
     num: 1,
     icon: <PiPencilLine />,
     title: "Log Your Update",
-    desc: "Type what you did, what's next, and any blockers — whenever suits you.",
+    desc: "Type what you did, what's next, and any blockers whenever suits you.",
   },
   {
     num: 2,

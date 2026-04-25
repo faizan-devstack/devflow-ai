@@ -110,7 +110,7 @@ export default function FeaturesSection() {
             Two tools. One focused workspace.
           </h2>
           <p className="text-canvas-text text-lg mt-3 max-w-xl mx-auto">
-            Everything a small dev team or agency needs — nothing they don&apos;t.
+            Everything a small dev team or agency needs, nothing they don&apos;t.
           </p>
         </motion.div>
 

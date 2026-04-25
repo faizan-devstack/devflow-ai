@@ -40,7 +40,7 @@ const LANDING_LINKS: NavLink[] = [
 const APP_LINKS: NavLink[] = [
   { label: "Standup", href: "/dashboard/standup" },
   { label: "Onboarding", href: "/dashboard/onboarding" },
-  { label: "Settings", href: "/settings" },
+  { label: "Settings", href: "/dashboard/settings" },
 ];
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
@@ -207,7 +207,7 @@ function LoggedInDesktopNav({
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/settings"
+                  href="/dashboard/settings"
                   className="text-sm text-canvas-text hover:text-canvas-text-contrast cursor-pointer"
                 >
                   Settings
@@ -317,7 +317,7 @@ function MobileMenu({
 
 export default function Header() {
   const pathname = usePathname();
-  const { isSignedIn, user } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useClerk();
 
   // Derive initials from Clerk user
@@ -327,7 +327,7 @@ export default function Header() {
     ).toUpperCase() || user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"
     : "U";
 
-  const handleSignOut = () => signOut({ redirectUrl: "/" });
+  const handleSignOut = () => signOut({ redirectUrl: "/sign-in" });
 
   const logoHref = isSignedIn ? "/settings" : "/";
 
@@ -343,22 +343,28 @@ export default function Header() {
         <Logo href={logoHref} />
 
         {/* Desktop nav + right actions */}
-        {isSignedIn ? (
-          <LoggedInDesktopNav
-            pathname={pathname}
-            initials={initials}
-            onSignOut={handleSignOut}
-          />
+        {isLoaded ? (
+          isSignedIn ? (
+            <LoggedInDesktopNav
+              pathname={pathname}
+              initials={initials}
+              onSignOut={handleSignOut}
+            />
+          ) : (
+            <LoggedOutDesktopNav />
+          )
         ) : (
-          <LoggedOutDesktopNav />
+          <div className="hidden md:flex flex-1 items-center gap-6" />
         )}
 
         {/* Mobile hamburger */}
-        <MobileMenu
-          isLoggedIn={!!isSignedIn}
-          pathname={pathname}
-          onSignOut={handleSignOut}
-        />
+        {isLoaded && (
+          <MobileMenu
+            isLoggedIn={!!isSignedIn}
+            pathname={pathname}
+            onSignOut={handleSignOut}
+          />
+        )}
       </div>
     </motion.header>
   );
