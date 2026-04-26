@@ -1,5 +1,5 @@
 import { constructMetadata } from "@/lib/metadata";
-import { SignUpCard } from "../../../components/auth/sign-up-card";
+import { SignUpCard } from "@/components/auth/sign-up-card";
 
 export const metadata = constructMetadata({
   title: "Sign Up",

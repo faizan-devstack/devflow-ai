@@ -1,5 +1,5 @@
 import { constructMetadata } from "@/lib/metadata";
-import { ForgotPasswordCard } from "../../../components/auth/forgot-password-card";
+import { ForgotPasswordCard } from "@/components/auth/forgot-password-card";
 
 export const metadata = constructMetadata({
   title: "Forgot Password",

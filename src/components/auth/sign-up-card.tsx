@@ -21,6 +21,7 @@ import {
 import { PiGoogleLogo, PiEye, PiEyeSlash, PiSpinner, PiWarning, PiEnvelope, PiArrowRight } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getPasswordStrength } from "@/lib/password-strength";
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -52,17 +53,6 @@ export function SignUpCard() {
   });
 
   const password = watch("password", "");
-
-  const getPasswordStrength = (pwd: string) => {
-    if (pwd.length === 0) return 0;
-    if (pwd.length < 6) return 1;
-    if (pwd.length < 8) return 2;
-    const hasMixed = /[a-z]/.test(pwd) && /[A-Z]/.test(pwd) && /[0-9]/.test(pwd);
-    if (pwd.length >= 8 && !hasMixed) return 3;
-    if (pwd.length >= 8 && hasMixed) return 4;
-    return 0;
-  };
-
   const strength = getPasswordStrength(password);
 
   const onSubmit = async (values: SignUpValues) => {
