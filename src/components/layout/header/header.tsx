@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useSession, signOut } from "@/lib/auth-client";
 import { PiList, PiBell } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
@@ -37,12 +37,6 @@ const LANDING_LINKS: NavLink[] = [
   { label: "About Us", href: "/about" },
 ];
 
-const APP_LINKS: NavLink[] = [
-  { label: "Standup", href: "/dashboard/standup" },
-  { label: "Onboarding", href: "/dashboard/onboarding" },
-  { label: "Settings", href: "/dashboard/settings" },
-];
-
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
 function Logo({ href }: { href: string }) {
@@ -64,12 +58,10 @@ function NavItem({
   href,
   label,
   isActive,
-  isAppNav,
 }: {
   href: string;
   label: string;
   isActive?: boolean;
-  isAppNav?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -97,14 +89,6 @@ function NavItem({
           />
         )}
       </AnimatePresence>
-
-      {isAppNav && isActive && (
-        <motion.span
-          layoutId="active-indicator"
-          className="absolute bottom-0 left-0 right-0 h-px bg-primary-solid"
-          transition={{ type: "spring", stiffness: 380, damping: 30 }}
-        />
-      )}
     </Link>
   );
 
@@ -147,31 +131,16 @@ function LoggedOutDesktopNav() {
 // ─── Logged-In Nav ────────────────────────────────────────────────────────────
 
 function LoggedInDesktopNav({
-  pathname,
   initials,
   onSignOut,
 }: {
-  pathname: string;
   initials: string;
   onSignOut: () => void;
 }) {
   return (
     <>
-      {/* Center nav */}
-      <nav className="hidden md:flex items-center gap-6">
-        {APP_LINKS.map((link) => (
-          <NavItem
-            key={link.href}
-            href={link.href}
-            label={link.label}
-            isActive={pathname.startsWith(link.href)}
-            isAppNav
-          />
-        ))}
-      </nav>
-
       {/* Right: bell + avatar */}
-      <div className="hidden md:flex items-center gap-3">
+      <div className="hidden md:flex items-center gap-3 ml-auto">
         {/* Notification bell */}
         <button
           aria-label="Notifications"
@@ -199,14 +168,6 @@ function LoggedInDesktopNav({
             >
               <DropdownMenuItem asChild>
                 <Link
-                  href="/dashboard"
-                  className="text-sm text-canvas-text hover:text-canvas-text-contrast cursor-pointer"
-                >
-                  Dashboard
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
                   href="/dashboard/settings"
                   className="text-sm text-canvas-text hover:text-canvas-text-contrast cursor-pointer"
                 >
@@ -232,15 +193,13 @@ function LoggedInDesktopNav({
 
 function MobileMenu({
   isLoggedIn,
-  pathname,
   onSignOut,
 }: {
   isLoggedIn: boolean;
-  pathname: string;
   onSignOut: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const links = isLoggedIn ? APP_LINKS : LANDING_LINKS;
+  const links = LANDING_LINKS;
 
   return (
     <div className="md:hidden">
@@ -259,7 +218,7 @@ function MobileMenu({
         >
           <nav className="flex flex-col gap-1">
             {links.map((link) => {
-              const isActive = isLoggedIn && pathname.startsWith(link.href);
+              const isActive = false
               return (
                 <Link
                   key={link.href}
@@ -316,20 +275,23 @@ function MobileMenu({
 // ─── Header ───────────────────────────────────────────────────────────────────
 
 export default function Header() {
+  const { data: session } = useSession();
+  const isSignedIn = !!session;
+  const user = session?.user;
+  const router = useRouter();
   const pathname = usePathname();
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
 
-  // Derive initials from Clerk user
-  const initials = user
-    ? (
-      (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")
-    ).toUpperCase() || user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"
+  if (pathname.startsWith("/dashboard")) return null;
+
+  // Derive initials from user name
+  const initials = user?.name
+    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
-  const handleSignOut = () => signOut({ redirectUrl: "/sign-in" });
+  const handleSignOut = () =>
+    signOut({ fetchOptions: { onSuccess: () => router.push("/") } });
 
-  const logoHref = isSignedIn ? "/settings" : "/";
+  const logoHref = isSignedIn ? "/dashboard" : "/";
 
   return (
     <motion.header
@@ -343,28 +305,14 @@ export default function Header() {
         <Logo href={logoHref} />
 
         {/* Desktop nav + right actions */}
-        {isLoaded ? (
-          isSignedIn ? (
-            <LoggedInDesktopNav
-              pathname={pathname}
-              initials={initials}
-              onSignOut={handleSignOut}
-            />
-          ) : (
-            <LoggedOutDesktopNav />
-          )
+        {isSignedIn ? (
+          <LoggedInDesktopNav initials={initials} onSignOut={handleSignOut} />
         ) : (
-          <div className="hidden md:flex flex-1 items-center gap-6" />
+          <LoggedOutDesktopNav />
         )}
 
         {/* Mobile hamburger */}
-        {isLoaded && (
-          <MobileMenu
-            isLoggedIn={!!isSignedIn}
-            pathname={pathname}
-            onSignOut={handleSignOut}
-          />
-        )}
+        <MobileMenu isLoggedIn={isSignedIn} onSignOut={handleSignOut} />
       </div>
     </motion.header>
   );

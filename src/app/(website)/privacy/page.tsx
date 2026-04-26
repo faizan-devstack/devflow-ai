@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { PiArrowLeft, PiShieldCheck, PiGithubLogo } from "react-icons/pi";
-
 import { constructMetadata } from "@/lib/metadata";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 export const metadata = constructMetadata({
   title: "Privacy Policy",
@@ -10,7 +12,13 @@ export const metadata = constructMetadata({
   noIndex: true,
 });
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="bg-canvas-base min-h-screen">
       <div className="max-w-3xl mx-auto px-6 py-16">

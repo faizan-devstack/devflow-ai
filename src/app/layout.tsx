@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/layout/theme/theme-toggle";
 import { ThemeProvider } from "next-themes";
 import Header from "@/components/layout/header/header";
 import Footer from "@/components/layout/footer/footer";
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthProvider } from "@/components/providers/auth-provider";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -19,6 +19,7 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+import { Toaster } from "@/components/ui/sonner";
 import { constructMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = constructMetadata();
@@ -29,29 +30,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html
-        lang="en" suppressHydrationWarning
-        className={cn(
-          "h-full antialiased",
-          dmSans.variable
-          , "font-sans", geist.variable)}
-      >
-        <body className="min-h-full flex flex-col bg-canvas-base" suppressHydrationWarning>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-          >
+    <html
+      data-scroll-behavior="smooth"
+      lang="en" suppressHydrationWarning
+      className={cn(
+        "h-full antialiased", dmSans.variable, "font-sans", geist.variable)}
+    >
+      <body className="flex flex-col bg-canvas-base" suppressHydrationWarning>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+        >
+          <AuthProvider>
+            <Toaster position="bottom-right" />
             <ThemeToggle />
             <TooltipProvider>
               <Header />
               {children}
               <Footer />
             </TooltipProvider>
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
