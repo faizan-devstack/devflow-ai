@@ -18,7 +18,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { PiGoogleLogo, PiEye, PiEyeSlash, PiSpinner, PiWarning } from "react-icons/pi";
+import { PiGoogleLogo, PiEye, PiEyeSlash, PiSpinner, PiWarning, PiEnvelope, PiArrowRight } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -40,6 +40,8 @@ export function SignUpCard() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [verificationPending, setVerificationPending] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
 
   const {
     register,
@@ -72,11 +74,12 @@ export function SignUpCard() {
         email: values.email,
         password: values.password,
         name: values.name,
-        callbackURL: "/sign-in",
+        callbackURL: "/dashboard",
       }, {
         onSuccess: () => {
-          toast.success("Account created successfully!");
-          router.push("/sign-in");
+          setVerificationEmail(values.email);
+          setVerificationPending(true);
+          toast.success("Account created! Please verify your email.");
         },
         onError: (ctx) => {
           setError(ctx.error.message || "Something went wrong. Please try again.");
@@ -90,9 +93,9 @@ export function SignUpCard() {
   };
 
   const handleGoogleSignUp = async () => {
-    await signIn.social({        // ← change here
+    await signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/dashboard/settings",
     });
   };
 
@@ -103,170 +106,224 @@ export function SignUpCard() {
           <span className="text-canvas-text-contrast font-semibold text-xl">DevFlow</span>
           <span className="text-primary-solid font-semibold text-xl">AI</span>
         </Link>
-        <CardTitle className="text-2xl">Create your account</CardTitle>
-        <CardDescription>Start your free DevFlow AI workspace</CardDescription>
+        <CardTitle className="text-2xl">
+          {verificationPending ? "Check your email" : "Create your account"}
+        </CardTitle>
+        <CardDescription>
+          {verificationPending
+            ? "We've sent you a verification link"
+            : "Start your free DevFlow AI workspace"}
+        </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        <Button
-          variant="outline"
-          className="w-full"
-          size="lg"
-          onClick={handleGoogleSignUp}
-        >
-          <PiGoogleLogo className="mr-2 h-5 w-5" />
-          Continue with Google
-        </Button>
 
-        <div className="flex items-center gap-4 w-full">
-          <span className="h-px w-full bg-canvas-border/50" />
-          <span className="text-xs text-canvas-text uppercase tracking-wider">or</span>
-          <span className="h-px w-full bg-canvas-border/50" />
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          {error && (
-            <div className="bg-alert-bg border border-alert-border/50 text-alert-text rounded-lg p-3 text-sm flex items-center gap-2">
-              <PiWarning className="shrink-0" />
-              {error}
-            </div>
-          )}
-
-          <div className="grid gap-2">
-            <Label htmlFor="name">Full name</Label>
-            <Input
-              id="name"
-              placeholder="John Doe"
-              aria-invalid={!!errors.name}
-              {...register("name")}
-            />
-            {errors.name && (
-              <p className="text-xs text-alert-text">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              aria-invalid={!!errors.email}
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-xs text-alert-text">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+      {verificationPending ? (
+        <CardContent className="grid gap-4">
+          <div className="flex justify-center mb-4">
             <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                className="pr-10"
-                aria-invalid={!!errors.password}
-                {...register("password")}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-canvas-text hover:text-canvas-text-contrast transition-colors"
-              >
-                {showPassword ? <PiEyeSlash size={18} /> : <PiEye size={18} />}
-              </button>
-            </div>
-
-            {password.length > 0 && (
-              <div className="mt-2 space-y-1.5">
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "h-1 flex-1 rounded-full transition-colors duration-300",
-                        i <= strength
-                          ? strength === 1
-                            ? "bg-alert-solid"
-                            : strength === 2
-                              ? "bg-warning-solid"
-                              : strength === 3
-                                ? "bg-primary-solid"
-                                : "bg-success-solid"
-                          : "bg-canvas-border/50"
-                      )}
-                    />
-                  ))}
-                </div>
-                <p className={cn(
-                  "text-[10px] font-medium uppercase tracking-wider",
-                  strength === 1 ? "text-alert-text" :
-                    strength === 2 ? "text-warning-text" :
-                      strength === 3 ? "text-primary-text" :
-                        strength === 4 ? "text-success-text" :
-                          "text-canvas-text"
-                )}>
-                  {strength === 1 && "Weak"}
-                  {strength === 2 && "Fair"}
-                  {strength === 3 && "Good"}
-                  {strength === 4 && "Strong"}
-                </p>
+              <div className="absolute inset-0 bg-primary-solid/20 rounded-full blur-lg" />
+              <div className="relative bg-primary-bg rounded-full p-4">
+                <PiEnvelope size={32} className="text-primary-solid" />
               </div>
-            )}
-
-            {errors.password && (
-              <p className="text-xs text-alert-text">{errors.password.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                className="pr-10"
-                aria-invalid={!!errors.confirmPassword}
-                {...register("confirmPassword")}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-canvas-text hover:text-canvas-text-contrast transition-colors"
-              >
-                {showConfirmPassword ? <PiEyeSlash size={18} /> : <PiEye size={18} />}
-              </button>
             </div>
-            {errors.confirmPassword && (
-              <p className="text-xs text-alert-text">{errors.confirmPassword.message}</p>
-            )}
           </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <PiSpinner className="mr-2 h-4 w-4 animate-spin" />
-                Creating account...
-              </>
-            ) : (
-              "Create account"
-            )}
-          </Button>
-        </form>
-      </CardContent>
-      <CardFooter className="justify-center border-none bg-transparent">
-        <p className="text-sm text-canvas-text">
-          Already have an account?{" "}
-          <Link href="/sign-in" className="text-primary-text font-medium hover:underline">
-            Sign in
-          </Link>
-        </p>
-      </CardFooter>
+          <div className="text-center space-y-2 mb-6">
+            <p className="text-sm text-canvas-text">
+              We sent a verification link to:
+            </p>
+            <p className="text-sm font-medium text-canvas-text-contrast">
+              {verificationEmail}
+            </p>
+          </div>
+
+          <div className="bg-primary-bg border border-primary-border/50 rounded-lg p-4 text-sm text-canvas-text space-y-2">
+            <p className="font-medium text-canvas-text-contrast">What's next?</p>
+            <ul className="list-disc list-inside space-y-1 text-xs">
+              <li>Click the link in your email to verify</li>
+              <li>You'll be automatically signed in</li>
+              <li>Start using DevFlow AI immediately</li>
+            </ul>
+          </div>
+
+          <div className="pt-4">
+            <Link href="/sign-in">
+              <Button
+                variant="outline"
+                className="w-full"
+              >
+                Go to sign in
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      ) : (
+        <>
+          <CardContent className="grid gap-4">
+            <Button
+              variant="outline"
+              className="w-full"
+              size="lg"
+              onClick={handleGoogleSignUp}
+            >
+              <PiGoogleLogo className="mr-2 h-5 w-5" />
+              Continue with Google
+            </Button>
+
+            <div className="flex items-center gap-4 w-full">
+              <span className="h-px w-full bg-canvas-border/50" />
+              <span className="text-xs text-canvas-text uppercase tracking-wider">or</span>
+              <span className="h-px w-full bg-canvas-border/50" />
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+              {error && (
+                <div className="bg-alert-bg border border-alert-border/50 text-alert-text rounded-lg p-3 text-sm flex items-center gap-2">
+                  <PiWarning className="shrink-0" />
+                  {error}
+                </div>
+              )}
+
+              <div className="grid gap-2">
+                <Label htmlFor="name">Full name</Label>
+                <Input
+                  id="name"
+                  placeholder="John Doe"
+                  aria-invalid={!!errors.name}
+                  {...register("name")}
+                />
+                {errors.name && (
+                  <p className="text-xs text-alert-text">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  aria-invalid={!!errors.email}
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <p className="text-xs text-alert-text">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    className="pr-10"
+                    aria-invalid={!!errors.password}
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-canvas-text hover:text-canvas-text-contrast transition-colors"
+                  >
+                    {showPassword ? <PiEyeSlash size={18} /> : <PiEye size={18} />}
+                  </button>
+                </div>
+
+                {password.length > 0 && (
+                  <div className="mt-2 space-y-1.5">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "h-1 flex-1 rounded-full transition-colors duration-300",
+                            i <= strength
+                              ? strength === 1
+                                ? "bg-alert-solid"
+                                : strength === 2
+                                  ? "bg-warning-solid"
+                                  : strength === 3
+                                    ? "bg-primary-solid"
+                                    : "bg-success-solid"
+                              : "bg-canvas-border/50"
+                          )}
+                        />
+                      ))}
+                    </div>
+                    <p className={cn(
+                      "text-[10px] font-medium uppercase tracking-wider",
+                      strength === 1 ? "text-alert-text" :
+                        strength === 2 ? "text-warning-text" :
+                          strength === 3 ? "text-primary-text" :
+                            strength === 4 ? "text-success-text" :
+                              "text-canvas-text"
+                    )}>
+                      {strength === 1 && "Weak"}
+                      {strength === 2 && "Fair"}
+                      {strength === 3 && "Good"}
+                      {strength === 4 && "Strong"}
+                    </p>
+                  </div>
+                )}
+
+                {errors.password && (
+                  <p className="text-xs text-alert-text">{errors.password.message}</p>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="confirmPassword">Confirm password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    className="pr-10"
+                    aria-invalid={!!errors.confirmPassword}
+                    {...register("confirmPassword")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-canvas-text hover:text-canvas-text-contrast transition-colors"
+                  >
+                    {showConfirmPassword ? <PiEyeSlash size={18} /> : <PiEye size={18} />}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-xs text-alert-text">{errors.confirmPassword.message}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full"
+                size="lg"
+              >
+                {isLoading ? (
+                  <>
+                    <PiSpinner className="mr-2 h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create account
+                    <PiArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="justify-center border-none bg-transparent">
+            <p className="text-sm text-canvas-text">
+              Already have an account?{" "}
+              <Link href="/sign-in" className="text-primary-text font-medium hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
+        </>
+      )}
     </Card>
   );
 }

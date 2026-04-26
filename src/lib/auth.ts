@@ -2,22 +2,25 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { prisma } from "@/lib/db/prisma";
+import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  baseURL: process.env.NEXT_PUBLIC_APP_URL,
+  secret: process.env.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
-    autoSignIn: true,
+    autoSignIn: false,
     sendResetPassword: async ({ user, url }) => {
-      console.log(`Reset URL for ${user.email}: ${url}`);
+      await sendPasswordResetEmail(user.email, url);
     },
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
-      console.log(`Verify URL for ${user.email}: ${url}`);
+    sendVerificationEmail: async ({ user, url, token }) => {
+      await sendVerificationEmail(user.email, url);
     },
   },
   socialProviders: {

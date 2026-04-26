@@ -207,7 +207,7 @@ export default function SettingsPage() {
                 <div className="flex-1 text-center sm:text-left">
                   <p className="text-canvas-text-contrast font-semibold">{user?.name}</p>
                   <p className="text-canvas-text text-sm">{user?.email}</p>
-                  
+
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="sm" className="mt-4 border-canvas-border/50 text-canvas-text hover:bg-canvas-subtle">
@@ -233,8 +233,8 @@ export default function SettingsPage() {
                           )}
                         </div>
                         <DialogFooter>
-                          <Button 
-                            type="submit" 
+                          <Button
+                            type="submit"
                             disabled={isUpdatingProfile}
                             className="bg-primary-solid text-primary-on-primary hover:bg-primary-solid-hover"
                           >
@@ -347,8 +347,8 @@ export default function SettingsPage() {
                     </div>
 
                     <DialogFooter>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         disabled={isUpdatingPassword}
                         className="bg-primary-solid text-primary-on-primary hover:bg-primary-solid-hover"
                       >
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                     <p className="text-xs text-canvas-text">Sign in with Google</p>
                   </div>
                 </div>
-                
+
                 {/* Check if google is connected - this would need session check for linked accounts */}
                 <Badge variant="outline" className="bg-success-bg text-success-text border-success-border/50">
                   Connected
@@ -401,7 +401,7 @@ export default function SettingsPage() {
                 <h2 className="text-canvas-text-contrast font-semibold">Danger Zone</h2>
               </div>
 
-              <button 
+              <button
                 onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
                 className="w-full flex items-center gap-3 py-2 text-canvas-text hover:text-canvas-text-contrast transition-colors group"
               >

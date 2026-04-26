@@ -46,10 +46,16 @@ export function SignInCard() {
       await signIn.email({
         email: values.email,
         password: values.password,
-        callbackURL: "/dashboard",
+        callbackURL: "/dashboard/settings",
       }, {
         onError: (ctx) => {
-          setError(ctx.error.message || "Something went wrong. Please try again.");
+          const message = ctx.error.message || "Something went wrong. Please try again.";
+          // Check if error is about email not verified
+          if (message.includes("email") || message.includes("verify")) {
+            setError("Please verify your email before signing in. Check your inbox for a verification link.");
+          } else {
+            setError(message);
+          }
         }
       });
     } catch (err) {
@@ -62,7 +68,7 @@ export function SignInCard() {
   const handleGoogleSignIn = async () => {
     await signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/dashboard/settings",
     });
   };
 
