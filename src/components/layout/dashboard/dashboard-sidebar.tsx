@@ -132,7 +132,7 @@ export function DashboardSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="flex items-center gap-3 px-4 border-t border-canvas-border/50 min-h-[64px]">
+        <div className="flex items-center gap-3 px-4 border-t border-canvas-border/50 min-h-16">
           {isPending ? (
             <Skeleton className="w-8 h-8 rounded-full shrink-0" />
           ) : (

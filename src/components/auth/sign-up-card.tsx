@@ -136,8 +136,7 @@ export function SignUpCard() {
             <p className="font-medium text-canvas-text-contrast">What's next?</p>
             <ul className="list-disc list-inside space-y-1 text-xs">
               <li>Click the link in your email to verify</li>
-              <li>You'll be automatically signed in</li>
-              <li>Start using DevFlow AI immediately</li>
+              <li>Sign In to Start using DevFlow AI</li>
             </ul>
           </div>
 

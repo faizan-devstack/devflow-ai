@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/layout/theme/theme-toggle";
 import { ThemeProvider } from "next-themes";
 import Header from "@/components/layout/header/header";
 import Footer from "@/components/layout/footer/footer";
+import { AuthProvider } from "@/components/providers/auth-provider";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -41,13 +42,15 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
         >
-          <Toaster position="bottom-right" />
-          <ThemeToggle />
-          <TooltipProvider>
-            <Header />
-            {children}
-            <Footer />
-          </TooltipProvider>
+          <AuthProvider>
+            <Toaster position="bottom-right" />
+            <ThemeToggle />
+            <TooltipProvider>
+              <Header />
+              {children}
+              <Footer />
+            </TooltipProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

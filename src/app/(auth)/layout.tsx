@@ -7,6 +7,7 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
