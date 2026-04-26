@@ -39,7 +39,6 @@ export function SignUpCard() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [verificationPending, setVerificationPending] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
 
@@ -68,35 +67,44 @@ export function SignUpCard() {
 
   const onSubmit = async (values: SignUpValues) => {
     setIsLoading(true);
-    setError(null);
     try {
       await signUp.email({
         email: values.email,
         password: values.password,
         name: values.name,
-        callbackURL: "/dashboard",
+        callbackURL: "/dashboard/settings",
       }, {
         onSuccess: () => {
           setVerificationEmail(values.email);
           setVerificationPending(true);
-          toast.success("Account created! Please verify your email.");
+          toast.success("Account created!", {
+            description: "Please check your email to verify your account.",
+          });
         },
         onError: (ctx) => {
-          setError(ctx.error.message || "Something went wrong. Please try again.");
+          toast.error("Registration failed", {
+            description: ctx.error.message || "Something went wrong. Please try again.",
+          });
         }
       });
     } catch (err) {
-      setError("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
-    await signIn.social({
-      provider: "google",
-      callbackURL: "/dashboard/settings",
-    });
+    try {
+      await signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard/settings",
+      });
+    } catch (err) {
+      toast.error("Google sign in failed", {
+        description: "Could not connect to Google. Please try again.",
+      });
+    }
   };
 
   return (
@@ -110,9 +118,7 @@ export function SignUpCard() {
           {verificationPending ? "Check your email" : "Create your account"}
         </CardTitle>
         <CardDescription>
-          {verificationPending
-            ? "We've sent you a verification link"
-            : "Start your free DevFlow AI workspace"}
+          Start your free DevFlow AI workspace
         </CardDescription>
       </CardHeader>
 
@@ -129,7 +135,7 @@ export function SignUpCard() {
 
           <div className="text-center space-y-2 mb-6">
             <p className="text-sm text-canvas-text">
-              We sent a verification link to:
+              We sent a verification email to:
             </p>
             <p className="text-sm font-medium text-canvas-text-contrast">
               {verificationEmail}
@@ -176,12 +182,7 @@ export function SignUpCard() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-              {error && (
-                <div className="bg-alert-bg border border-alert-border/50 text-alert-text rounded-lg p-3 text-sm flex items-center gap-2">
-                  <PiWarning className="shrink-0" />
-                  {error}
-                </div>
-              )}
+
 
               <div className="grid gap-2">
                 <Label htmlFor="name">Full name</Label>

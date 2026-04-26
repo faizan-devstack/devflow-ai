@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { prisma } from "@/lib/db/prisma";
-import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
+import { sendUserVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -17,11 +17,13 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail(user.email, url);
     },
+    requireEmailVerification: true
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }) => {
-      await sendVerificationEmail(user.email, url);
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendUserVerificationEmail(user.email, url);
     },
+    sendOnSignUp: true
   },
   socialProviders: {
     google: {

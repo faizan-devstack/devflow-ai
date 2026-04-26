@@ -214,7 +214,7 @@ export default function SettingsPage() {
                         Edit profile
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-canvas-base border-canvas-border/50 sm:max-w-[425px]">
+                    <DialogContent className="bg-canvas-base border-canvas-border/50 sm:max-w-106.25">
                       <DialogHeader>
                         <DialogTitle className="text-canvas-text-contrast">Edit profile</DialogTitle>
                         <DialogDescription className="text-canvas-text">
@@ -267,7 +267,7 @@ export default function SettingsPage() {
                     <PiCaretRight className="text-canvas-text group-hover:text-canvas-text-contrast transition-colors" />
                   </button>
                 </DialogTrigger>
-                <DialogContent className="bg-canvas-base border-canvas-border/50 sm:max-w-[425px]">
+                <DialogContent className="bg-canvas-base border-canvas-border/50 sm:max-w-106.25">
                   <DialogHeader>
                     <DialogTitle className="text-canvas-text-contrast">Change password</DialogTitle>
                     <DialogDescription className="text-canvas-text">
@@ -418,7 +418,7 @@ export default function SettingsPage() {
                     <span className="text-sm font-medium">Delete account</span>
                   </button>
                 </DialogTrigger>
-                <DialogContent className="bg-canvas-base border-canvas-border/50 sm:max-w-[425px]">
+                <DialogContent className="bg-canvas-base border-canvas-border/50 sm:max-w-106.25">
                   <DialogHeader>
                     <DialogTitle className="text-alert-text">Delete your account</DialogTitle>
                     <DialogDescription className="text-canvas-text">

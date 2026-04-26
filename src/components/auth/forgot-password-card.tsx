@@ -17,7 +17,8 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { PiCheckCircle, PiSpinner, PiWarning } from "react-icons/pi";
+import { toast } from "sonner";
+import { PiCheckCircle, PiSpinner } from "react-icons/pi";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -28,7 +29,6 @@ type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 export function ForgotPasswordCard() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [submittedEmail, setSubmittedEmail] = useState("");
 
   const {
@@ -41,7 +41,6 @@ export function ForgotPasswordCard() {
 
   const onSubmit = async (values: ForgotPasswordValues) => {
     setIsLoading(true);
-    setError(null);
     setSubmittedEmail(values.email);
     try {
       await requestPasswordReset({
@@ -50,13 +49,18 @@ export function ForgotPasswordCard() {
       }, {
         onSuccess: () => {
           setIsSuccess(true);
+          toast.success("Reset link sent!", {
+            description: "Please check your inbox for the password reset link.",
+          });
         },
         onError: (ctx: any) => {
-          setError(ctx.error.message || "Something went wrong.");
+          toast.error("Request failed", {
+            description: ctx.error.message || "Something went wrong.",
+          });
         }
       });
     } catch (err) {
-      setError("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -94,12 +98,7 @@ export function ForgotPasswordCard() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          {error && (
-            <div className="bg-alert-bg border border-alert-border/50 text-alert-text rounded-lg p-3 text-sm flex items-center gap-2">
-              <PiWarning className="shrink-0" />
-              {error}
-            </div>
-          )}
+
 
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>

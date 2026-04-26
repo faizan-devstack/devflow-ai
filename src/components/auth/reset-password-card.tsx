@@ -17,6 +17,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 import { PiSpinner, PiWarning, PiEye, PiEyeSlash } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +38,6 @@ function ResetPasswordForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -64,26 +64,32 @@ function ResetPasswordForm() {
 
   const onSubmit = async (values: ResetPasswordValues) => {
     if (!token) {
-      setError("Invalid or expired reset link");
+      toast.error("Invalid link", {
+        description: "Your reset link is invalid or expired.",
+      });
       return;
     }
 
     setIsLoading(true);
-    setError(null);
     try {
       await resetPassword({
         newPassword: values.password,
         token,
       }, {
         onSuccess: () => {
+          toast.success("Password updated!", {
+            description: "You can now sign in with your new password.",
+          });
           router.push("/sign-in");
         },
         onError: (ctx) => {
-          setError(ctx.error.message || "Something went wrong.");
+          toast.error("Update failed", {
+            description: ctx.error.message || "Something went wrong.",
+          });
         }
       });
     } catch (err) {
-      setError("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -121,12 +127,7 @@ function ResetPasswordForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          {error && (
-            <div className="bg-alert-bg border border-alert-border/50 text-alert-text rounded-lg p-3 text-sm flex items-center gap-2">
-              <PiWarning className="shrink-0" />
-              {error}
-            </div>
-          )}
+
 
           <div className="grid gap-2">
             <Label htmlFor="password">New password</Label>

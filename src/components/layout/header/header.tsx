@@ -196,14 +196,6 @@ function LoggedInDesktopNav({
             >
               <DropdownMenuItem asChild>
                 <Link
-                  href="/dashboard"
-                  className="text-sm text-canvas-text hover:text-canvas-text-contrast cursor-pointer"
-                >
-                  Dashboard
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
                   href="/dashboard/settings"
                   className="text-sm text-canvas-text hover:text-canvas-text-contrast cursor-pointer"
                 >

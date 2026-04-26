@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendVerificationEmail(
+export async function sendUserVerificationEmail(
     email: string,
     verificationUrl: string
 ) {
@@ -41,6 +41,7 @@ export async function sendVerificationEmail(
               }
               .logo-ai {
                 color: #14b8a6;
+                padding-left: 5px;
               }
               .content {
                 margin-bottom: 30px;
@@ -76,12 +77,14 @@ export async function sendVerificationEmail(
               <div class="content">
                 <p>Hi there!</p>
                 <p>Welcome to DevFlow AI! Please verify your email to get started.</p>
-                <a href="${verificationUrl}" class="button">Verify Email</a>
+                <a href="${verificationUrl}" class="button">
+                <span style="color:#ffffff !important;">Verify Email</span>
+                </a>
                 <p>Or copy this link: ${verificationUrl}</p>
                 <p>This link expires in 24 hours.</p>
               </div>
               <div class="footer">
-                <p>DevFlow AI — Async standup + codebase onboarding for dev teams</p>
+                <p>DevFlow AI, Async standup & codebase onboarding for dev teams</p>
               </div>
             </div>
           </body>

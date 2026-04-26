@@ -17,7 +17,8 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { PiGoogleLogo, PiEye, PiEyeSlash, PiSpinner, PiWarning } from "react-icons/pi";
+import { toast } from "sonner";
+import { PiGoogleLogo, PiEye, PiEyeSlash, PiSpinner } from "react-icons/pi";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -29,7 +30,6 @@ type SignInValues = z.infer<typeof signInSchema>;
 export function SignInCard() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -41,35 +41,49 @@ export function SignInCard() {
 
   const onSubmit = async (values: SignInValues) => {
     setIsLoading(true);
-    setError(null);
     try {
       await signIn.email({
         email: values.email,
         password: values.password,
         callbackURL: "/dashboard/settings",
       }, {
+        onSuccess: () => {
+          toast.success("Welcome back!", {
+            description: "You have successfully signed in.",
+          });
+        },
         onError: (ctx) => {
           const message = ctx.error.message || "Something went wrong. Please try again.";
-          // Check if error is about email not verified
+          
           if (message.includes("email") || message.includes("verify")) {
-            setError("Please verify your email before signing in. Check your inbox for a verification link.");
+            toast.error("Verification Required", {
+              description: "Please verify your email before signing in. Check your inbox for a verification link.",
+            });
           } else {
-            setError(message);
+            toast.error("Sign in failed", {
+              description: message,
+            });
           }
         }
       });
     } catch (err) {
-      setError("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    await signIn.social({
-      provider: "google",
-      callbackURL: "/dashboard/settings",
-    });
+    try {
+      await signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard/settings",
+      });
+    } catch (err) {
+      toast.error("Google sign in failed", {
+        description: "Could not connect to Google. Please try again.",
+      });
+    }
   };
 
   return (
@@ -100,12 +114,7 @@ export function SignInCard() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          {error && (
-            <div className="bg-alert-bg border border-alert-border/50 text-alert-text rounded-lg p-3 text-sm flex items-center gap-2">
-              <PiWarning className="shrink-0" />
-              {error}
-            </div>
-          )}
+
 
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
