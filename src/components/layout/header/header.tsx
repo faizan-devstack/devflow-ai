@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useSession, signOut } from "@/lib/auth-client";
 import { PiList, PiBell } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
@@ -147,11 +147,9 @@ function LoggedOutDesktopNav() {
 // ─── Logged-In Nav ────────────────────────────────────────────────────────────
 
 function LoggedInDesktopNav({
-  pathname,
   initials,
   onSignOut,
 }: {
-  pathname: string;
   initials: string;
   onSignOut: () => void;
 }) {
@@ -164,7 +162,6 @@ function LoggedInDesktopNav({
             key={link.href}
             href={link.href}
             label={link.label}
-            isActive={pathname.startsWith(link.href)}
             isAppNav
           />
         ))}
@@ -232,11 +229,9 @@ function LoggedInDesktopNav({
 
 function MobileMenu({
   isLoggedIn,
-  pathname,
   onSignOut,
 }: {
   isLoggedIn: boolean;
-  pathname: string;
   onSignOut: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -259,7 +254,7 @@ function MobileMenu({
         >
           <nav className="flex flex-col gap-1">
             {links.map((link) => {
-              const isActive = isLoggedIn && pathname.startsWith(link.href);
+              const isActive = false
               return (
                 <Link
                   key={link.href}
@@ -316,20 +311,20 @@ function MobileMenu({
 // ─── Header ───────────────────────────────────────────────────────────────────
 
 export default function Header() {
-  const pathname = usePathname();
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
+  const { data: session } = useSession();
+  const isSignedIn = !!session;
+  const user = session?.user;
+  const router = useRouter();
 
-  // Derive initials from Clerk user
-  const initials = user
-    ? (
-      (user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")
-    ).toUpperCase() || user.emailAddresses?.[0]?.emailAddress?.[0]?.toUpperCase() || "U"
+  // Derive initials from user name
+  const initials = user?.name
+    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
-  const handleSignOut = () => signOut({ redirectUrl: "/sign-in" });
+  const handleSignOut = () =>
+    signOut({ fetchOptions: { onSuccess: () => router.push("/") } });
 
-  const logoHref = isSignedIn ? "/settings" : "/";
+  const logoHref = isSignedIn ? "/dashboard" : "/";
 
   return (
     <motion.header
@@ -343,28 +338,14 @@ export default function Header() {
         <Logo href={logoHref} />
 
         {/* Desktop nav + right actions */}
-        {isLoaded ? (
-          isSignedIn ? (
-            <LoggedInDesktopNav
-              pathname={pathname}
-              initials={initials}
-              onSignOut={handleSignOut}
-            />
-          ) : (
-            <LoggedOutDesktopNav />
-          )
+        {isSignedIn ? (
+          <LoggedInDesktopNav initials={initials} onSignOut={handleSignOut} />
         ) : (
-          <div className="hidden md:flex flex-1 items-center gap-6" />
+          <LoggedOutDesktopNav />
         )}
 
         {/* Mobile hamburger */}
-        {isLoaded && (
-          <MobileMenu
-            isLoggedIn={!!isSignedIn}
-            pathname={pathname}
-            onSignOut={handleSignOut}
-          />
-        )}
+        <MobileMenu isLoggedIn={isSignedIn} onSignOut={handleSignOut} />
       </div>
     </motion.header>
   );
