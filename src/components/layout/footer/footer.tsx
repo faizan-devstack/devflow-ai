@@ -8,6 +8,8 @@ import {
   PiLinkedinLogo,
 } from "react-icons/pi";
 
+import { usePathname } from "next/navigation";
+
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const PRODUCT_LINKS = [
@@ -60,6 +62,9 @@ function FooterLinkGroup({
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/dashboard")) return null;
   return (
     <motion.footer
       initial={{ opacity: 0, y: 16 }}

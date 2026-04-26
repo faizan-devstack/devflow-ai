@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "@/lib/auth-client";
 import { PiList, PiBell } from "react-icons/pi";
@@ -37,12 +37,6 @@ const LANDING_LINKS: NavLink[] = [
   { label: "About Us", href: "/about" },
 ];
 
-const APP_LINKS: NavLink[] = [
-  { label: "Standup", href: "/dashboard/standup" },
-  { label: "Onboarding", href: "/dashboard/onboarding" },
-  { label: "Settings", href: "/dashboard/settings" },
-];
-
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
 function Logo({ href }: { href: string }) {
@@ -64,12 +58,10 @@ function NavItem({
   href,
   label,
   isActive,
-  isAppNav,
 }: {
   href: string;
   label: string;
   isActive?: boolean;
-  isAppNav?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -97,14 +89,6 @@ function NavItem({
           />
         )}
       </AnimatePresence>
-
-      {isAppNav && isActive && (
-        <motion.span
-          layoutId="active-indicator"
-          className="absolute bottom-0 left-0 right-0 h-px bg-primary-solid"
-          transition={{ type: "spring", stiffness: 380, damping: 30 }}
-        />
-      )}
     </Link>
   );
 
@@ -155,20 +139,8 @@ function LoggedInDesktopNav({
 }) {
   return (
     <>
-      {/* Center nav */}
-      <nav className="hidden md:flex items-center gap-6">
-        {APP_LINKS.map((link) => (
-          <NavItem
-            key={link.href}
-            href={link.href}
-            label={link.label}
-            isAppNav
-          />
-        ))}
-      </nav>
-
       {/* Right: bell + avatar */}
-      <div className="hidden md:flex items-center gap-3">
+      <div className="hidden md:flex items-center gap-3 ml-auto">
         {/* Notification bell */}
         <button
           aria-label="Notifications"
@@ -227,7 +199,7 @@ function MobileMenu({
   onSignOut: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const links = isLoggedIn ? APP_LINKS : LANDING_LINKS;
+  const links = LANDING_LINKS;
 
   return (
     <div className="md:hidden">
@@ -307,6 +279,9 @@ export default function Header() {
   const isSignedIn = !!session;
   const user = session?.user;
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/dashboard")) return null;
 
   // Derive initials from user name
   const initials = user?.name

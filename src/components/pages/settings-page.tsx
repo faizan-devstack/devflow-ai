@@ -176,10 +176,10 @@ export default function SettingsPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-wrap gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         {/* Profile */}
-        <motion.div variants={itemVariants} className="flex min-w-[280px]">
+        <motion.div variants={itemVariants} className="w-full">
           <Card className="h-full">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
@@ -235,7 +235,7 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* Security */}
-        <motion.div variants={itemVariants} className="flex-1 min-w-[280px]">
+        <motion.div variants={itemVariants} className="w-full">
           <Card className="h-full">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
@@ -340,7 +340,7 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* Connected Accounts */}
-        <motion.div variants={itemVariants} className="flex-1 min-w-[280px]">
+        <motion.div variants={itemVariants} className="w-full">
           <Card className="h-full">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
@@ -365,7 +365,7 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* Danger Zone */}
-        <motion.div variants={itemVariants} className="flex-1 min-w-[280px]">
+        <motion.div variants={itemVariants} className="w-full">
           <Card className="h-full border-destructive/50">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
@@ -376,7 +376,6 @@ export default function SettingsPage() {
               <Button
                 onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
                 variant="secondary"
-                className="w-full"
               >
                 <PiSignOut size={18} />
                 Sign out
@@ -386,7 +385,7 @@ export default function SettingsPage() {
 
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="destructive" className="w-full">
+                  <Button variant="destructive">
                     <PiTrash size={18} />
                     Delete account
                   </Button>
