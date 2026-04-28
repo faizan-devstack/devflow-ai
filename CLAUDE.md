@@ -8,6 +8,8 @@ It combines two core features:
 
 Target users: small dev agencies (2–10 devs), freelancers managing clients, junior devs onboarding to new projects.
 
+**Current Status:** Phase 1 (auth + landing pages + dashboard layout) ✅ — Phase 2-6 in progress
+
 ---
 
 ### UI Component Implementation Guidelines (Generic)
@@ -60,16 +62,21 @@ Follow these guidelines consistently across the entire project to maintain a coh
 ---
 
 ## Tech Stack (STRICT — do not deviate without asking)
-- **Framework**: Next.js latest stable (16.x), App Router, TypeScript strict mode
+- **Framework**: Next.js 16.2.4, App Router, TypeScript strict mode, React Compiler enabled
 - **Styling**: Tailwind CSS v4 + DesignRift custom theme (see Color System below)
 - **UI Components**: ShadCN — always replace default color classes with DesignRift theme classes
 - **Icons**: react-icons/pi (Phosphor Icons) — NEVER use lucide-react or heroicons
-- **ORM**: Prisma ORM with NeonDB (PostgreSQL)
-- **Vector DB**: pgvector extension on NeonDB (same DB, no separate service)
-- **Auth**: Clerk (team/org support, Next.js App Router native)
-- **AI**: Claude API — model: `claude-sonnet-4-5` (never change this model)
-- **Email**: Resend (free tier — 3k/mo)
-- **Animations**: Framer Motion — all interactive elements must have animations
+- **Auth**: Better Auth 1.6.9 (email/password + Google OAuth) + Resend for emails
+  - Session access: `const session = await auth.api.getSession({ headers: await headers() })`
+  - Client hook: `const { data: session } = useSession()` from `@/lib/auth-client`
+- **ORM**: Prisma 7.8.0 + @prisma/adapter-pg for PostgreSQL (NeonDB)
+  - Prisma client at: `src/generated/prisma/client.ts`
+  - Singleton import: `import { prisma } from '@/lib/db/prisma'`
+- **Vector DB**: pgvector extension on NeonDB (same DB, to be added in Phase 3)
+- **AI**: Claude API — model: `claude-sonnet-4-5` (never change)
+- **Embeddings**: OpenAI text-embedding-3-small (1536 dimensions)
+- **Email**: Resend 6.12.2 (free tier — 3k/mo)
+- **Animations**: Framer Motion 12.38.0
 - **Hosting**: Vercel
 
 ---
@@ -131,142 +138,315 @@ When installing/using any ShadCN component, replace ALL of its default color cla
 ---
 
 ## Project File Structure
+
+### CURRENTLY EXISTS:
 ```
 src/
-├── app/                          # Next.js App Router
-│   ├── (auth)/                   # Clerk auth routes
-│   │   ├── sign-in/
-│   │   └── sign-up/
-│   ├── (dashboard)/              # Protected dashboard routes
-│   │   ├── layout.tsx            # Dashboard shell with sidebar
-│   │   ├── page.tsx              # Main dashboard overview
-│   │   ├── standup/              # StandupAI feature
-│   │   │   ├── page.tsx          # Today's standup + team feed
-│   │   │   └── [sprintId]/       # Sprint detail view
-│   │   ├── onboarding/           # Codebase onboarding feature
-│   │   │   ├── page.tsx          # Repo list
-│   │   │   └── [repoId]/         # Onboarding doc + Q&A chat
-│   │   └── settings/             # Team settings, notifications
-│   └── api/                      # API routes
-│       ├── standup/
-│       │   ├── submit/route.ts   # POST: submit standup entry
-│       │   └── digest/route.ts   # POST: generate sprint digest (also cron)
-│       ├── onboarding/
-│       │   ├── ingest/route.ts   # POST: ingest GitHub repo
-│       │   └── chat/route.ts     # POST: Q&A chat stream
-│       └── webhooks/
-│           └── clerk/route.ts    # Clerk user sync
+├── app/
+│   ├── layout.tsx                # Root layout + theme provider
+│   ├── page.tsx                  # Landing page (hero + features + FAQ)
+│   ├── globals.css               # DesignRift theme tokens (canvas-*, primary-*, etc.)
+│   ├── (auth)/                   # Better Auth routes (public)
+│   │   ├── layout.tsx
+│   │   ├── sign-in/page.tsx      # Email/password + Google OAuth signin
+│   │   ├── sign-up/page.tsx
+│   │   ├── forgot-password/page.tsx
+│   │   └── reset-password/page.tsx
+│   ├── (app)/                    # Protected routes (auth required)
+│   │   ├── dashboard/
+│   │   │   ├── layout.tsx        # SidebarProvider + DashboardSidebar
+│   │   │   ├── page.tsx          # Overview cards (standup, onboarding, settings)
+│   │   │   ├── standup/          # ❌ NOT YET BUILT
+│   │   │   ├── onboarding/       # ❌ NOT YET BUILT
+│   │   │   └── settings/         # ❌ NOT YET BUILT
+│   │   └── (website)/            # Public pages (about, privacy, terms)
+│   │       ├── about/page.tsx
+│   │       ├── privacy/page.tsx
+│   │       └── terms/page.tsx
+│   └── api/
+│       ├── auth/[...all]/route.ts       # Better Auth route handler
+│       ├── user/update-profile/route.ts # PATCH user profile (needs session)
+│       ├── user/update-password/route.ts
+│       ├── user/resend-verification/route.ts
+│       └── og/route.tsx                 # OG image generation
 ├── components/
-│   ├── ui/                       # ShadCN base components (theme-overridden)
-│   ├── standup/                  # StandupAI components
-│   ├── onboarding/               # Onboarding agent components
-│   ├── dashboard/                # Dashboard shell components
-│   └── shared/                   # Shared: Logo, Nav, ThemeToggle etc
+│   ├── ui/                       # ShadCN: accordion, avatar, badge, button, card, dialog, etc. (20+ components)
+│   ├── animations/
+│   │   ├── TextRotate.tsx
+│   │   └── WaveDivider.tsx
+│   ├── auth/
+│   │   ├── sign-in-card.tsx       # Email/password + Google signin form
+│   │   ├── sign-up-card.tsx
+│   │   ├── forgot-password-card.tsx
+│   │   └── reset-password-card.tsx
+│   ├── landing/
+│   │   ├── HeroSection.tsx
+│   │   ├── FeaturesSection.tsx
+│   │   ├── HowItWorksSection.tsx
+│   │   └── FAQAndCTA.tsx
+│   ├── layout/
+│   │   ├── dashboard/
+│   │   │   └── dashboard-sidebar.tsx   # Nav with topNav (Standup, Onboarding) + Settings
+│   │   ├── header/
+│   │   │   └── header.tsx
+│   │   ├── footer/
+│   │   │   └── footer.tsx
+│   │   └── theme/
+│   │       └── theme-toggle.tsx
+│   ├── pages/
+│   │   ├── settings-page.tsx           # ❌ PLACEHOLDER
+│   │   └── dashboard/
+│   │       └── dashboard-content.tsx   # Cards linking to features
+│   ├── providers/
+│   │   └── auth-provider.tsx           # Provides useSession hook
+│   └── generated/                      # Auto-generated Prisma types
+│       └── prisma/
 ├── lib/
-│   ├── db/
-│   │   └── prisma.ts             # Prisma client singleton
-│   ├── ai/
-│   │   ├── standup.ts            # Claude API: standup summarizer chain
-│   │   ├── digest.ts             # Claude API: sprint digest generator
-│   │   ├── ingest.ts             # Code chunking + embedding logic
-│   │   └── chat.ts               # Claude API: codebase Q&A chain
-│   ├── github.ts                 # GitHub REST API helpers
-│   ├── embeddings.ts             # OpenAI text-embedding-3-small wrapper
-│   └── resend.ts                 # Email sending helpers
-├── actions/                      # Next.js Server Actions
-│   ├── standup.ts
-│   ├── onboarding.ts
-│   └── team.ts
-└── types/
-    └── index.ts                  # Shared TypeScript types
+│   ├── auth.ts                   # Better Auth config + Session type export
+│   ├── auth-client.ts            # createAuthClient for useSession hook
+│   ├── auth-utils.ts             # getAuthSession(), response helpers
+│   ├── db/prisma.ts              # Prisma client singleton (adapter-pg)
+│   ├── email.ts                  # Resend integration (verification + password reset)
+│   ├── metadata.ts               # Metadata helpers
+│   ├── password-strength.ts      # Password strength check
+│   ├── utils.ts                  # cn(), general utilities
+│   ├── ai/                       # ❌ NOT YET BUILT (standup.ts, digest.ts, ingest.ts, chat.ts)
+│   ├── embeddings.ts             # ❌ NOT YET BUILT
+│   ├── github.ts                 # ❌ NOT YET BUILT
+│   └── clerk-appearance.ts       # (Not used, legacy)
+└── hooks/
+    └── use-mobile.ts             # Mobile breakpoint hook
 prisma/
-└── schema.prisma                 # Prisma schema (source of truth for DB)
+├── schema.prisma                 # Schema (only Better Auth tables currently)
+└── migrations/
+    └── 20260426144327_init/      # Initial migration (User, Session, Account, Verification tables)
+```
+
+### TO BE BUILT:
+```
+src/
+├── app/(app)/dashboard/
+│   ├── standup/
+│   │   ├── page.tsx              # Standup form + team feed
+│   │   └── [sprintId]/
+│   │       └── page.tsx          # Sprint detail + digest view
+│   ├── onboarding/
+│   │   ├── page.tsx              # Repo list
+│   │   └── [repoId]/
+│   │       └── page.tsx          # Onboarding doc + Q&A chat
+│   └── settings/
+│       └── page.tsx              # Team settings, RBAC, notifications
+├── api/
+│   ├── standup/
+│   │   ├── submit/route.ts       # POST: standup entry
+│   │   └── digest/route.ts       # POST: generate + email digest
+│   ├── onboarding/
+│   │   ├── ingest/route.ts       # POST: ingest repo, chunk, embed, store
+│   │   ├── chat/route.ts         # POST: RAG Q&A (streaming)
+│   │   └── scan-status/route.ts  # GET: progress of repo ingestion
+│   └── webhooks/
+│       └── health/route.ts       # Health check for cron jobs
+├── components/
+│   ├── standup/
+│   │   ├── standup-form.tsx
+│   │   ├── standup-entry-card.tsx
+│   │   ├── team-feed.tsx
+│   │   ├── sprint-digest-view.tsx
+│   │   └── blocker-badge.tsx
+│   ├── onboarding/
+│   │   ├── repo-list.tsx
+│   │   ├── onboarding-doc.tsx
+│   │   ├── qa-chat.tsx
+│   │   ├── code-block.tsx
+│   │   └── ingest-dialog.tsx
+├── lib/
+│   ├── ai/
+│   │   ├── standup.ts            # Claude: summarize standup
+│   │   ├── digest.ts             # Claude: generate weekly digest
+│   │   ├── ingest.ts             # Code chunking + semantic upload
+│   │   └── chat.ts               # Claude: RAG Q&A chain
+│   ├── embeddings.ts             # OpenAI embed function
+│   ├── github.ts                 # Clone + parse repos
+│   └── code-language.ts          # HuggingFace language detection
+├── actions/
+│   ├── standup.ts                # Server actions for standup
+│   ├── onboarding.ts             # Server actions for repo onboarding
+│   └── team.ts                   # Team RBAC actions
+└── types/
+    └── index.ts                  # Types for all models + enums (Role enum)
+prisma/
+├── schema.prisma                 # Extended with Team, Sprint, StandupEntry, Repo, RepoChunk, OnboardingSession
+└── migrations/
+    ├── 20260426144327_init/      # Current init
+    └── [NEXT_DATE]_add_features/ # Phase 3: add feature tables + pgvector
 ```
 
 ---
 
-## Database Schema (Prisma — source of truth)
+## Current Database Schema (Prisma)
 
 ```prisma
-// Key models — always check prisma/schema.prisma before any DB operation
+// Currently deployed — only Better Auth tables
 
 model User {
-  id            String   @id              // Clerk user ID
-  email         String   @unique
-  name          String?
-  teamId        String?
-  team          Team?    @relation(fields: [teamId], references: [id])
-  standups      StandupEntry[]
-  createdAt     DateTime @default(now())
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
 }
 
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+```
+
+### TO BE ADDED IN PHASE 3:
+
+```prisma
+// Roles enum for RBAC
+enum Role {
+  OWNER       // Can invite, RBAC, delete team, manage all features
+  MEMBER      // Can submit standups, view team feed, use onboarding
+  VIEWER      // Read-only access to standup feed and digests
+}
+
+// Team & Sprint
 model Team {
   id            String   @id @default(cuid())
   name          String
-  clerkOrgId    String   @unique
-  members       User[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+  members       TeamMember[]
   sprints       Sprint[]
   repos         Repo[]
-  createdAt     DateTime @default(now())
+}
+
+model TeamMember {
+  id       String  @id @default(cuid())
+  userId   String
+  teamId   String
+  role     Role    @default(MEMBER)
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team     Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
 }
 
 model Sprint {
   id            String   @id @default(cuid())
   teamId        String
-  team          Team     @relation(fields: [teamId], references: [id])
+  team          Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   name          String
   startDate     DateTime
   endDate       DateTime
   entries       StandupEntry[]
-  digest        String?  // AI-generated weekly summary
+  digest        String?  // AI-generated HTML
   digestSentAt  DateTime?
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
 }
 
 model StandupEntry {
   id            String   @id @default(cuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   sprintId      String
-  sprint        Sprint   @relation(fields: [sprintId], references: [id])
-  didToday      String   // raw input
-  doingNext     String   // raw input
-  blockers      String?  // raw input
-  summary       String   // AI-generated structured summary
+  sprint        Sprint   @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  didToday      String   // Raw user input
+  doingNext     String   // Raw user input
+  blockers      String?  // Raw user input
+  summary       String?  // AI-generated structured summary
   hasBlocker    Boolean  @default(false)
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
+// Codebase Onboarding
 model Repo {
   id            String   @id @default(cuid())
   teamId        String
-  team          Team     @relation(fields: [teamId], references: [id])
+  team          Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   githubUrl     String
   name          String
   description   String?
-  onboardingDoc String?  // AI-generated markdown doc
+  onboardingDoc String?  // AI-generated markdown
+  ingestStatus  String   @default("pending") // pending, ingesting, complete, error
+  ingestError   String?
   chunks        RepoChunk[]
   sessions      OnboardingSession[]
   ingestedAt    DateTime?
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
 }
 
 model RepoChunk {
   id            String   @id @default(cuid())
   repoId        String
-  repo          Repo     @relation(fields: [repoId], references: [id])
+  repo          Repo     @relation(fields: [repoId], references: [id], onDelete: Cascade)
   filePath      String
-  content       String
-  embedding     Unsupported("vector(1536)")?  // pgvector
+  content       String   // max ~2000 chars
+  language      String?  // programming language (auto-detected)
+  embedding     Unsupported("vector(1536)")? // pgvector for semantic search
   createdAt     DateTime @default(now())
 }
 
 model OnboardingSession {
   id            String   @id @default(cuid())
   repoId        String
-  repo          Repo     @relation(fields: [repoId], references: [id])
+  repo          Repo     @relation(fields: [repoId], references: [id], onDelete: Cascade)
   userId        String
-  messages      Json     // [{role, content}] conversation history
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages      Json     // [{role: "user"|"assistant", content: string}]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -312,37 +492,114 @@ model OnboardingSession {
 
 ## Environment Variables Required
 ```
-DATABASE_URL=               # NeonDB connection string
-DIRECT_URL=                 # NeonDB direct URL (for Prisma migrations)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-CLERK_WEBHOOK_SECRET=
-ANTHROPIC_API_KEY=          # Claude API
-OPENAI_API_KEY=             # text-embedding-3-small for embeddings
-GITHUB_TOKEN=               # GitHub REST API (optional, raises rate limits)
-RESEND_API_KEY=
-NEXT_PUBLIC_APP_URL=
+# Database — NeonDB
+DEVFLOW_AI_DATABASE_URL=postgresql://user:password@host/dbname?schema=public
+DIRECT_URL=postgresql://user:password@host/dbname  # Direct (no pooling) for migrations
+
+# Better Auth
+BETTER_AUTH_SECRET=<random-secret-key>
+NEXT_PUBLIC_APP_URL=http://localhost:3000           # or https://yourapp.com in prod
+
+# Google OAuth
+GOOGLE_CLIENT_ID=<from-google-console>
+GOOGLE_CLIENT_SECRET=<from-google-console>
+
+# Email — Resend
+RESEND_API_KEY=<resend-api-key>
+
+# AI APIs
+ANTHROPIC_API_KEY=<claude-api-key>
+OPENAI_API_KEY=<openai-api-key>
+
+# Optional: GitHub (for higher rate limits)
+GITHUB_TOKEN=<github-personal-access-token>
 ```
 
 ---
 
 ## Commands Reference
 ```bash
-npm run dev                  # Start dev server
-npx prisma db push           # Push schema changes to NeonDB
-npx prisma generate          # Regenerate Prisma client
-npx prisma studio            # Open DB GUI
-npx tsc --noEmit             # Type check without building
-npx prisma migrate dev       # Create a named migration
+# Development
+npm run dev                  # Start dev server (http://localhost:3000)
+npm run build               # Build for production (runs prisma generate first)
+
+# Database
+npx prisma db push          # Push schema changes to dev database
+npx prisma migrate dev --name description  # Create + apply migration
+npx prisma generate         # Regenerate Prisma client types
+npx prisma studio           # Open database GUI
+npx prisma db seed          # Seed database (if seed.ts exists)
+
+# Type checking
+npx tsc --noEmit            # Check for TypeScript errors
+npm run lint                # Run ESLint
+
+# Production
+npm run start                # Run production server
 ```
 
 ---
 
 ## What's Already Done / What's Not
-Track this as you build — update this section when phases complete.
 
-- [ ] Phase 1: Project setup, Clerk auth, Prisma + NeonDB connected
-- [ ] Phase 2: DB schema pushed, Clerk webhook syncing users
-- [ ] Phase 3: StandupAI — input form, AI summarizer, team feed, sprint digest, email
-- [ ] Phase 4: Codebase Onboarding — GitHub ingestion, embeddings, Q&A chat
-- [ ] Phase 5: Dashboard, landing page, production deploy
+### ✅ PHASE 1 — AUTH & LANDING (COMPLETE)
+- [x] Better Auth setup (email/password + Google OAuth)
+- [x] Prisma ORM with PostgreSQL (NeonDB) + adapter-pg
+- [x] User/Session/Account/Verification tables deployed
+- [x] Email verification + password reset (Resend)
+- [x] Sign-in/sign-up pages with validated forms
+- [x] Landing page (hero, features, how-it-works, FAQ)
+- [x] DesignRift theme fully configured in globals.css
+- [x] ShadCN UI components installed and themed
+- [x] React Compiler enabled
+- [x] Dashboard layout with sidebar navigation
+- [x] Dashboard main page with feature cards
+- [x] Resend email templates working
+
+### ❌ PHASE 2 — FRONTEND WITH MOCK DATA (NOT STARTED)
+- [ ] /dashboard/standup/page.tsx — standup form + team feed
+- [ ] /dashboard/standup/[sprintId]/page.tsx — sprint digest view
+- [ ] /dashboard/onboarding/page.tsx — repo list
+- [ ] /dashboard/onboarding/[repoId]/page.tsx — onboarding doc + Q&A chat UI
+- [ ] Standup components (form, entry card, team feed, blocker badge)
+- [ ] Onboarding components (repo list, doc viewer, chat UI, code block)
+- [ ] Mock data for standup entries (10+ entries per sprint)
+- [ ] Mock data for repos (GitHub repos with chunked code)
+- [ ] Mock onboarding sessions
+- [ ] Settings page (placeholder) → team settings UI
+- [ ] RBAC-aware UI (show different content based on role)
+
+### ❌ PHASE 3 — DATABASE SCHEMA & MIGRATIONS (NOT STARTED)
+- [ ] Extended Prisma schema (Team, TeamMember, Sprint, StandupEntry, Repo, RepoChunk, OnboardingSession)
+- [ ] Role enum (OWNER, MEMBER, VIEWER)
+- [ ] Create migration: `add_features_tables`
+- [ ] Deploy pgvector extension to NeonDB
+- [ ] Update RepoChunk model with Unsupported("vector(1536)")
+- [ ] Run `npx prisma db push` + `npx prisma generate`
+- [ ] Verify User, Team, and relationship models work
+
+### ❌ PHASE 4 — CORE API ROUTES (NOT STARTED)
+- [ ] POST /api/standup/submit — submit standup entry
+- [ ] POST /api/standup/digest — generate + email sprint digest
+- [ ] POST /api/onboarding/ingest — ingest GitHub repo
+- [ ] POST /api/onboarding/chat — RAG Q&A chat (streaming)
+- [ ] GET /api/onboarding/scan-status — ingest progress
+- [ ] Auth middleware for all routes
+- [ ] Zod validation schemas for all routes
+
+### ❌ PHASE 5 — AI FEATURES (NOT STARTED)
+- [ ] src/lib/ai/standup.ts — Claude standup summarizer
+- [ ] src/lib/ai/digest.ts — Claude sprint digest generator
+- [ ] src/lib/ai/ingest.ts — Code chunking + GitHub integration
+- [ ] src/lib/ai/chat.ts — Claude RAG Q&A chain
+- [ ] src/lib/embeddings.ts — OpenAI embed function
+- [ ] src/lib/github.ts — GitHub REST API helpers
+- [ ] Semantic search with pgvector
+
+### ❌ PHASE 6 — SERVER ACTIONS & EMAIL (NOT STARTED)
+- [ ] Server actions for standup form submission
+- [ ] Server actions for repo ingestion
+- [ ] Cron job setup for digest generation (Vercel)
+- [ ] Email template for sprint digest (Resend)
+- [ ] Send digest emails to team
+- [ ] Real-time progress updates for repo ingestion
